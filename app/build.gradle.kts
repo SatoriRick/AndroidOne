@@ -1,6 +1,19 @@
+import org.gradle.api.tasks.testing.logging.TestLogEvent
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("jacoco-android")
+}
+
+apply(from = "${project.rootDir}/jacoco.gradle")
+
+tasks.withType<Test> {
+    (this as? Test)?.let { test ->
+        jacoco {
+            isIncludeNoLocationClasses = true
+        }
+    }
 }
 
 android {
@@ -17,6 +30,9 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true
+        }
+        debug {
+            enableUnitTestCoverage = true
         }
     }
 
@@ -45,6 +61,15 @@ android {
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
+        }
+    }
+
+    testOptions {
+        unitTests.isIncludeAndroidResources = true
+        unitTests.all {
+            jacoco {
+                isIncludeNoLocationClasses = true
+            }
         }
     }
 }
